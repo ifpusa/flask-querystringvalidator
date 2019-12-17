@@ -1,0 +1,12 @@
+def _validate_start(vars):
+	return True
+def _validate_end(vars):
+	return True
+def _validate_cutoff(vars):
+	return True
+def _validate_supplier(vars):
+	return True
+def _validate_customer(vars):
+	return True		
+def _validate_location(vars):
+	return True
