@@ -1,0 +1,12 @@
+<form>
+
+	{% for p in g.qs._fields %}
+
+	<label for='{{ p }}'>{{ p }}</label>
+	<input type='text' id='{{ p }}' value='{{ g.qs | attr(p) | replace("[", "") | replace("]", "") }}'></input><br/>
+
+	{% endfor %}
+
+
+
+</form>

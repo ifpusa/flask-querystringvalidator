@@ -1,32 +1,28 @@
-from flask import Flask, request, url_for, redirect,g
-from datetime import datetime, timedelta
+from flask import Flask, render_template
+import qs
 
-import validators
-from page_params import mandatory_params
-
-import qs_types
 
 
 app = Flask(__name__)
 
 
 DEFAULTS = {
-	'start': qs_types.Date('2019-10-01'),
-	'end': qs_types.Date('2020-01-01'),
-	'location': qs_types.String('all'),
-	'customer': qs_types.String('all'),
-	'supplier': qs_types.String('all'),
-	'cutoff': qs_types.Integer(7),
-	'col': qs_types.List([i for i in range(10)])
+	'start': qs.fields.Date('2019-10-01'),
+	'end': qs.fields.Date('2020-01-01'),
+	'location': qs.fields.String('all'),
+	'customer': qs.fields.String('all'),
+	'supplier': qs.fields.String('all'),
+	'cutoff': qs.fields.Integer(7),
+	'col': qs.fields.List("all")
 }
 
 
 
-@mandatory_params(DEFAULTS)
+@qs.decorator.set(DEFAULTS)
 def index():
 
-
-	return str(g.qs_vars)
+	
+	return render_template('index.html')
 
 
 

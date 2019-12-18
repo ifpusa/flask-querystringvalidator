@@ -3,9 +3,13 @@ from flask import redirect, url_for, request, g
 from datetime import datetime as dt
 
 from urllib.parse import unquote
+from collections import namedtuple
 
 
-def mandatory_params(defaults=None):
+
+def set(defaults=None):
+
+	QueryString = namedtuple('QueryString', ' '.join(defaults.keys()))
 
 	def wrapper(func):
 
@@ -28,8 +32,9 @@ def mandatory_params(defaults=None):
 						url_for(request.endpoint, **formatted_vars)
 						)
 						)
-			g.qs_vars = valid_vars
-			
+
+			g.qs = QueryString(**valid_vars)
+
 			return func(*args, **kwargs)
 
 
@@ -43,6 +48,9 @@ def validate_vars(vars, defaults):
 	valid_vars = {}
 
 	for k in vars:
+
+		if k not in defaults:
+			continue
 
 		try:
 			valid_vars[k] = type(defaults[k])(vars.get(k))

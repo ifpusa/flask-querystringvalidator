@@ -18,6 +18,7 @@ Usage:
 
 '''
 
+import re
 
 
 class QsType(object):
@@ -72,9 +73,19 @@ class Integer(QsType):
 
 class List(QsType):
 
-	def __init__(self, *args, **kwargs):
-		QsType.__init__(self, *args, **kwargs)
+	def __init__(self, value):
+
+		pattern = re.compile(r'[\[\] ]')
+		splitable = re.sub(pattern, '', value)
+
+		self.value = splitable.split(',')
+
 
 	def __str__(self):
 
-		return '[' + ','.join([str(i) for i in self.value]) + ']'
+		if len(self.value) == 1:
+			return f'[{self.value[0]}]'
+		if len(self.value) == 0:
+			return f'[]'
+		if len(self.value) > 1:
+			return f"[{','.join(self.value)}]"
