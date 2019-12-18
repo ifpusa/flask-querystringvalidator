@@ -27,6 +27,12 @@ class QsType(object):
 
 		self.value = value
 
+	def pretty_print(self):
+		'''Useful when printing to HTML templates.
+		'''
+
+		return str(self.value)
+
 	def __str__(self):
 
 		return str(self.value)
@@ -75,11 +81,13 @@ class List(QsType):
 
 	def __init__(self, value):
 
-		pattern = re.compile(r'[\[\] ]')
-		splitable = re.sub(pattern, '', value)
+		self.pattern = re.compile(r'[\[\] ]')
+		splitable = re.sub(self.pattern, '', value)
 
 		self.value = splitable.split(',')
 
+	def pretty_print(self):
+		return re.sub(self.pattern, '', self.__str__())
 
 	def __str__(self):
 

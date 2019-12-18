@@ -3,7 +3,7 @@
 	{% for p in g.qs._fields %}
 
 	<label for='{{ p }}'>{{ p }}</label>
-	<input type='text' id='{{ p }}' value='{{ g.qs | attr(p) | replace("[", "") | replace("]", "") }}'></input><br/>
+	<input type='text' id='{{ p }}' value='{{ (g.qs | attr(p)).pretty_print() }}'></input><br/>
 
 	{% endfor %}
 
