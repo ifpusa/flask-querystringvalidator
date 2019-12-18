@@ -1,99 +1,193 @@
-from datetime import datetime as dt
-
-'''
-
-QsTypes are objects of defined type. They know three things:
-
-1. What type of data they can hold
-2. A value that has been provided
-3. How to serialize that value to a URL query string parameter
-
-Arguments to any subclass of QsType are always strings. Because they are usually populated from the URL bar.
-
-Usage: 
-
-1. Create a dictionary of default values for parameters
-2. The keys will be string parameter names. The values will be subclasses of QsType
+from datetime import datetime
 
 
-'''
+class Field(object):
 
-import re
+	def __init__(self, t):
+
+		self.t = t
+		self.value = None
 
 
-class QsType(object):
-
-	def __init__(self, value):
-
-		self.value = value
-
-	def pretty_print(self):
-		'''Useful when printing to HTML templates.
+	def ok_type(self, input):
+		'''Compares the input arg against the declared type of this field.
 		'''
 
-		return str(self.value)
+		return isinstance(input, self.t)
 
-	def __str__(self):
+	def dump(self):
 
-		return str(self.value)
+		return self.format(self.value)
 
-	def __repr__(self):
-		return '<QsType Object: Value = ' + str(self.value) + '>'
+	def format(self, x):
+		'''This method can be overridden by subclasses'''
+
+		return str(x)
+
+	@property
+	def blank(self):
+		return self.value is None
+
+	@property
+	def dummy(self):
+		'''This is built for tie-in's with SQLAlchemy expanding bindparams.
+		The DBAPI expects an input list of strongly typed values.
+
+		Returns a list of length 1 with a single raw value.
+		'''
+
+		return self.t()
+
+	def __eq__(self, other):
+
+		return self.value == other.value
+	
+
+class IntegerField(Field):
+
+	def __init__(self, value=None):
+		Field.__init__(self, t=int)
+
+		if value is None:
+			return
+
+		self.load(value)
 
 
-class Date(QsType):
+	def load(self, val):
+
+		# If the passed in value is of the correct type
+		# Save it and return
+		if self.ok_type(val):
+			self.value = val
+			return
+
+		# Otherwise we try to coerce it
+		try:
+			self.value = self.t(val)
+		except ValueError:
+			raise TypeError("Value must be of type string or {self.t}.")
+		else:
+			return
+
+
+class DateField(Field):
 
 	ALLOWED_FORMATS = ['%Y%m%d', '%Y-%m-%d']
 
-	def __init__(self, value):
+	def __init__(self, value=None):
+		Field.__init__(self, t=datetime)
 
-		self.value = None
+		if value is None:
+			return
 
-		for fmt in Date.ALLOWED_FORMATS:
+		self.load(value)
 
+
+	def load(self, val):
+
+		# If the passed in value is of the correct type
+		# Save it and return
+		if self.ok_type(val):
+			self.value = val
+			return
+
+		# If it's not the correct type, the only other option is string.
+		if not isinstance(val, str):
+			raise TypeError("Value must be of type string.")
+
+		# Otherwise we try to coerce it
+		for fmt in DateField.ALLOWED_FORMATS:
 			try:
-				self.value = dt.strptime(value, fmt)
+				self.value = datetime.strptime(val, fmt)
 			except ValueError:
-				pass
+				continue
 
 		if self.value is None:
-			raise ValueError('Not a valid date format!')
+			raise TypeError("Value must be a valid ISO8601 date string or {self.t}.")
+
+	def format(self, x):
+		'''This method can be overridden by subclasses'''
+
+		return self.value.strftime(DateField.ALLOWED_FORMATS[0])
+
+	@property
+	def dummy(self):
+		return datetime(year=1900, month=1, day=1)
 
 
-	def __str__(self):
+class ListField(Field):
 
-		return dt.strftime(self.value, Date.ALLOWED_FORMATS[0])
+	def __init__(self, t, value):
+		'''
+		t: a type object like str, list, dict, or tuple
+		'''
 
-
-class String(QsType):
-
-	def __init__(self, *args, **kwargs):
-		QsType.__init__(self, *args, **kwargs)
-
-
-class Integer(QsType):
-
-	def __init__(self, value):
-		self.value = int(value)
+		Field.__init__(self, t=t)
 
 
-class List(QsType):
+		if value is None or value == []:
+			return
 
-	def __init__(self, value):
+		self.load(value)
 
-		self.pattern = re.compile(r"[\[\] ']")
-		splitable = re.sub(self.pattern, '', value)
+		
 
-		self.value = splitable.split(',')
+	def load(self, this_input):
 
-	def pretty_print(self):
-		return re.sub(self.pattern, '', self.__str__())
+		if not isinstance(this_input, list):
+			raise TypeError("ListField Fields only accept arguments of type list()")
 
-	def __str__(self):
+		if all([self.ok_type(i) for i in this_input]):
+			self.value = [i for i in this_input]
+			return
 
-		if len(self.value) == 1:
-			return f'[{self.value[0]}]'
-		if len(self.value) == 0:
-			return f'[]'
-		if len(self.value) > 1:
-			return f"[{','.join(self.value)}]"
+		try:
+			self.value = [self.t(i) for i in this_input]
+		except ValueError: # I'm not entirely sure how to test this assertion
+			raise TypeError(f"ListField contents must be of type string or {self.t}.")
+		else:
+			return
+
+
+	def dump(self, sort_values=True):
+
+		fmt_values = [self.format(i) for i in self.value]
+
+		if sort_values:
+			return ','.join(sorted(fmt_values))
+		else:
+			return ','.join(fmt_values)
+
+	@property
+	def dummy(self):
+		'''This is built for tie-in's with SQLAlchemy expanding bindparams.
+		The DBAPI expects an input list of strongly typed values.
+
+		Returns a list of length 1 with a single raw value.
+		'''
+
+		return [self.t()]
+
+
+	def __eq__(self, other):
+
+		if not hasattr(other, 'value'):
+			return False
+
+		return list(sorted(self.value)) == list(sorted(other.value))
+
+
+class IntegerListField(ListField):
+
+	def __init__(self, value=None):
+		ListField.__init__(self, t=int, value=value)
+
+
+class StringListField(ListField):
+
+	def __init__(self, value=None):
+		ListField.__init__(self, t=str, value=value)
+
+
+
