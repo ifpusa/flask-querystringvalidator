@@ -81,7 +81,7 @@ class List(QsType):
 
 	def __init__(self, value):
 
-		self.pattern = re.compile(r'[\[\] ]')
+		self.pattern = re.compile(r"[\[\] ']")
 		splitable = re.sub(self.pattern, '', value)
 
 		self.value = splitable.split(',')

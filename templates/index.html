@@ -1,12 +1,15 @@
+
+
+
+
 <form>
 
-	{% for p in g.qs._fields %}
-
-	<label for='{{ p }}'>{{ p }}</label>
-	<input type='text' id='{{ p }}' value='{{ (g.qs | attr(p)).pretty_print() }}'></input><br/>
-
-	{% endfor %}
-
-
-
+	<select multiple name='location'>
+		<option value='10'>EHA</option>
+		<option value='20'>Iowa</option>
+		<option value='30'>North</option>
+		<option value='40'>West</option>
+		<option value='50'>South</option>
+	</select>
+	<input type='Submit' />
 </form>

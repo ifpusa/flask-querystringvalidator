@@ -5,6 +5,8 @@ from datetime import datetime as dt
 from urllib.parse import unquote
 from collections import namedtuple
 
+from . import fields
+
 
 
 def set(defaults=None):
@@ -47,13 +49,18 @@ def validate_vars(vars, defaults):
 	
 	valid_vars = {}
 
+
 	for k in vars:
 
 		if k not in defaults:
 			continue
 
 		try:
-			valid_vars[k] = type(defaults[k])(vars.get(k))
+
+			if isinstance(defaults[k], fields.List):
+				valid_vars[k] = type(defaults[k])(str(vars.getlist(k)))
+			else:	
+				valid_vars[k] = type(defaults[k])(vars.get(k))
 		except ValueError:
 			pass
 
