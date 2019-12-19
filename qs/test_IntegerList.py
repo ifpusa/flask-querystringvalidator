@@ -54,3 +54,15 @@ def test_dummy():
 
 	assert param.dummy == [int()]
 
+def test_dump_empty_list():
+
+	param = f.IntegerListField()
+
+	assert param.dump() == ''
+
+def test_filter_empty_string_list_contents():
+
+	param = f.IntegerListField(['','','',1])
+
+	assert param.dump() == '1'
+

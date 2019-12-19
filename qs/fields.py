@@ -104,7 +104,7 @@ class DateField(Field):
 				continue
 
 		if self.value is None:
-			raise TypeError("Value must be a valid ISO8601 date string or {self.t}.")
+			raise TypeError(f"Value must be a valid ISO8601 date string or {self.t}.")
 
 	def format(self, x):
 		'''This method can be overridden by subclasses'''
@@ -142,15 +142,21 @@ class ListField(Field):
 			self.value = [i for i in this_input]
 			return
 
+		filtered_list = [i for i in filter(lambda x: x != '', this_input)]
+
 		try:
-			self.value = [self.t(i) for i in this_input]
+			self.value = [self.t(i) for i in filtered_list]
 		except ValueError: # I'm not entirely sure how to test this assertion
-			raise TypeError(f"ListField contents must be of type string or {self.t}.")
+			raise TypeError(f"This list field accepts strings or {self.t}.")
 		else:
 			return
 
 
 	def dump(self, sort_values=True):
+
+		# TODO: Make it possible to set the "blank" value for a ListField
+		if self.value is None:
+			return ''
 
 		fmt_values = [self.format(i) for i in self.value]
 
@@ -188,6 +194,3 @@ class StringListField(ListField):
 
 	def __init__(self, value=None):
 		ListField.__init__(self, t=str, value=value)
-
-
-
