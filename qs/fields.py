@@ -17,6 +17,9 @@ class Field(object):
 
 	def dump(self):
 
+		if self.value is None:
+			return ''
+
 		return self.format(self.value)
 
 	def format(self, x):
@@ -62,11 +65,14 @@ class IntegerField(Field):
 			self.value = val
 			return
 
+		if val is '':
+			return
+
 		# Otherwise we try to coerce it
 		try:
 			self.value = self.t(val)
 		except ValueError:
-			raise TypeError("Value must be of type string or {self.t}.")
+			raise TypeError(f"Value must be of type string or {self.t}.")
 		else:
 			return
 

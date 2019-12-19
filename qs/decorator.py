@@ -64,7 +64,7 @@ def convert_qs_to_fields(request_qs, default_fields):
 	It converts the querystring strings into Field() objects.
 	'''
 	
-	fields = {}
+	parsed_fields = {}
 
 	for k in request_qs.keys():
 
@@ -74,11 +74,11 @@ def convert_qs_to_fields(request_qs, default_fields):
 		try:
 
 			if isinstance(default_fields[k], fields.ListField):
-				fields[k] = type(default_fields[k])(request_qs.getlist(k))
+				parsed_fields[k] = type(default_fields[k])(request_qs.getlist(k))
 			else:	
-				valid_vars[k] = type(default_fields[k])(request_qs.get(k))
+				parsed_fields[k] = type(default_fields[k])(request_qs.get(k))
 		except ValueError:
 			pass
 
-	return fields
+	return parsed_fields
 
