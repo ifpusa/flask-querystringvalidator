@@ -195,8 +195,17 @@ class IntegerListField(ListField):
 	def __init__(self, value=None):
 		ListField.__init__(self, t=int, value=value)
 
+	@property
+	def dummy(self):
+		return [1]
+	
+
 
 class StringListField(ListField):
 
 	def __init__(self, value=None):
 		ListField.__init__(self, t=str, value=value)
+
+	@property
+	def dummy(self):
+		return ['1']
