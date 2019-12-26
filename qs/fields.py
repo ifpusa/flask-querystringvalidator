@@ -2,6 +2,18 @@ from datetime import datetime
 
 
 class Field(object):
+	'''The principal object for query string serialization.
+
+	Not meant to be directly instantiated.
+
+	A Field subclass should accept a string input during __init__.
+
+	The string value is converted to a Python native data type and stored
+	as a Field.value property. This can be used for business logic.
+
+	When writing Field.value out to a query string, the .value is serialized
+	back to a formatted string once again.
+	'''
 
 	def __init__(self, t):
 
@@ -18,17 +30,15 @@ class Field(object):
 	def dump(self):
 		raise NotImplementedError()
 
-		# if self.value is None:
-		# 	return ''
-
-		# return self.format(self.value)
 
 	def format(self, x):
 		raise NotImplementedError()
 
+
 	@property
 	def blank(self):
 		return self.value is None
+
 
 	@property
 	def dummy(self):
@@ -39,6 +49,7 @@ class Field(object):
 		'''
 
 		return self.t()
+
 
 	def __eq__(self, other):
 
@@ -219,7 +230,6 @@ class IntegerListField(ListField):
 	@property
 	def dummy(self):
 		return [int()]
-	
 
 
 class StringListField(ListField):
