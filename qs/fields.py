@@ -197,7 +197,7 @@ class IntegerListField(ListField):
 
 	@property
 	def dummy(self):
-		return [1]
+		return [int()]
 	
 
 
@@ -208,4 +208,4 @@ class StringListField(ListField):
 
 	@property
 	def dummy(self):
-		return ['1']
+		return [str(int())]

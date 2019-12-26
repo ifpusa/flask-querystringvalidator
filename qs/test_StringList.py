@@ -49,5 +49,5 @@ def test_dummy():
 
 	param = f.StringListField()
 
-	assert param.dummy == [str()]
+	assert param.dummy == [str(int())]
 
