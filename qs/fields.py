@@ -16,16 +16,15 @@ class Field(object):
 		return isinstance(input, self.t)
 
 	def dump(self):
+		raise NotImplementedError()
 
-		if self.value is None:
-			return ''
+		# if self.value is None:
+		# 	return ''
 
-		return self.format(self.value)
+		# return self.format(self.value)
 
 	def format(self, x):
-		'''This method can be overridden by subclasses'''
-
-		raise NotImplementedError("Format functions must be written by subclasses.")
+		raise NotImplementedError()
 
 	@property
 	def blank(self):
@@ -80,6 +79,13 @@ class IntegerField(Field):
 
 		return str(val)
 
+	def dump(self):
+
+		if self.value is None:
+			return ''
+
+		return self.format(self.value)
+
 
 class DateField(Field):
 
@@ -120,6 +126,13 @@ class DateField(Field):
 		'''This method can be overridden by subclasses'''
 
 		return self.value.strftime(DateField.ALLOWED_FORMATS[0])
+
+	def dump(self):
+
+		if self.value is None:
+			return ''
+
+		return self.format(self.value)
 
 	@property
 	def dummy(self):
