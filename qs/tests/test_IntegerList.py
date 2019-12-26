@@ -1,5 +1,5 @@
 import pytest
-import fields as f
+from flask_querystring import fields as f
 
 
 def test_inheritance():
