@@ -25,7 +25,7 @@ class Field(object):
 	def format(self, x):
 		'''This method can be overridden by subclasses'''
 
-		return str(x)
+		raise NotImplementedError("Format functions must be written by subclasses.")
 
 	@property
 	def blank(self):
@@ -75,6 +75,10 @@ class IntegerField(Field):
 			raise TypeError(f"Value must be of type string or {self.t}.")
 		else:
 			return
+
+	def format(self, val):
+
+		return str(val)
 
 
 class DateField(Field):
@@ -170,6 +174,10 @@ class ListField(Field):
 			return ','.join(sorted(fmt_values))
 		else:
 			return ','.join(fmt_values)
+
+	def format(self, val):
+
+		return str(val)
 
 	@property
 	def dummy(self):
