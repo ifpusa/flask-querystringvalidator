@@ -15,10 +15,13 @@ class Field(object):
 	back to a formatted string once again.
 	'''
 
-	def __init__(self, t):
+	def __init__(self, t, value=None):
 
 		self.t = t
-		self.value = None
+		self.value = value
+
+		if value is not None:
+			self.load(value)
 
 
 	def ok_type(self, input):
@@ -26,6 +29,10 @@ class Field(object):
 		'''
 
 		return isinstance(input, self.t)
+
+	def load(self, value):
+		raise NotImplementedError()
+
 
 	def dump(self):
 		raise NotImplementedError()
@@ -59,12 +66,7 @@ class Field(object):
 class IntegerField(Field):
 
 	def __init__(self, value=None):
-		Field.__init__(self, t=int)
-
-		if value is None:
-			return
-
-		self.load(value)
+		Field.__init__(self, t=int, value=value)
 
 
 	def load(self, val):
@@ -86,6 +88,7 @@ class IntegerField(Field):
 		else:
 			return
 
+
 	def format(self, val):
 
 		return str(val)
@@ -103,12 +106,7 @@ class DateField(Field):
 	ALLOWED_FORMATS = ['%Y%m%d', '%Y-%m-%d']
 
 	def __init__(self, value=None):
-		Field.__init__(self, t=datetime)
-
-		if value is None:
-			return
-
-		self.load(value)
+		Field.__init__(self, t=datetime, value=value)
 
 
 	def load(self, val):
@@ -157,15 +155,10 @@ class ListField(Field):
 		t: a type object like str, list, dict, or tuple
 		'''
 
-		Field.__init__(self, t=t)
+		init_value = None if value is None or value == [] else value
+		Field.__init__(self, t=t, value=init_value)
 
 
-		if value is None or value == []:
-			return
-
-		self.load(value)
-
-		
 
 	def load(self, this_input):
 
