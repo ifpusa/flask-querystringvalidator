@@ -19,6 +19,12 @@ def test_empty_init():
 
 	assert param.blank
 
+def test_blank_and_isblank():
+
+	param = f.IntegerField()
+
+	assert param.blank == param.isblank
+
 
 def test_empty_init_then_load():
 

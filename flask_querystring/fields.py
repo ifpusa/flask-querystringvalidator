@@ -46,6 +46,11 @@ class Field(object):
 	def blank(self):
 		return self.value is None
 
+	@property
+	def isblank(self):
+		return self.blank
+	
+
 
 	@property
 	def dummy(self):
